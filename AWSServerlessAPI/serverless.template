@@ -4,21 +4,33 @@
   "Description" : "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
 
   "Parameters" : {
-    "ShouldCreateBucket" : {
+    "ShouldCreateTable" : {
       "Type" : "String",        
       "AllowedValues" : ["true", "false"],
-      "Description" : "If true then the S3 bucket that will be proxied will be created with the CloudFormation stack."
+      "Description" : "If true then the underlying DynamoDB table will be created with the CloudFormation stack."
     },  
-    "BucketName" : {
+    "TableName" : {
         "Type" : "String",
-        "Description" : "Name of S3 bucket that will be proxied. If left blank a new table will be created.",
+        "Description" : "Name of DynamoDB table to be used for underlying data store. If left blank a new table will be created.",
+        "MinLength" : "0"
+    },
+	"ShouldCreateRole" : {
+      "Type" : "String",        
+      "AllowedValues" : ["true", "false"],
+      "Description" : "If true then the role for the Lambda function will be created with the CloudFormation stack."
+    },  
+	"RoleARN" : {
+        "Type" : "String",
+        "Description" : "ARN of the IAM Role used to run the Lambda function. If left blank a new role will be created.",
         "MinLength" : "0"
     }
   },
 
   "Conditions" : {
-    "CreateS3Bucket" : {"Fn::Equals" : [{"Ref" : "ShouldCreateBucket"}, "true"]},
-    "BucketNameGenerated" : {"Fn::Equals" : [{"Ref" : "BucketName"}, ""]}
+    "CreateDynamoTable" : {"Fn::Equals" : [{"Ref" : "ShouldCreateTable"}, "true"]},
+    "TableNameGenerated" : {"Fn::Equals" : [{"Ref" : "TableName"}, ""]},
+	"CreateRole":{"Fn::Equals" : [{"Ref" : "ShouldCreateRole"}, "true"]},
+	"RoleGenerated" : {"Fn::Equals" : [{"Ref" : "RoleARN"}, ""]}
   },
 
   "Resources" : {
@@ -31,11 +43,10 @@
         "CodeUri": "",
         "MemorySize": 256,
         "Timeout": 30,
-        "Role": null,
-        "Policies": [ "AWSLambdaFullAccess" ],
+        "Role": {"Fn::If" : ["CreateRole", {"Fn::GetAtt":["LambdaRole", "Arn"]}, {"Ref":"RoleARN"}]},
         "Environment" : {
           "Variables" : {
-            "AppS3Bucket" : { "Fn::If" : ["CreateS3Bucket", {"Ref":"Bucket"}, { "Ref" : "BucketName" } ] }
+            "AppDynamoTable" : { "Fn::If" : ["CreateDynamoTable", {"Ref":"DynamoTable"}, { "Ref" : "TableName" } ] }
           }
         },
         "Events": {
@@ -50,18 +61,72 @@
       }
     },
 
-    "Bucket" : {
-        "Type" : "AWS::S3::Bucket",
-        "Condition" : "CreateS3Bucket",
+	"LambdaRole":{
+		"Type":"AWS::IAM::Role",
+		"Condition":"CreateRole",
+		"Properties":{
+			"ManagedPolicyArns":["arn:aws:iam::aws:policy/AWSLambdaFullAccess"],
+			"AssumeRolePolicyDocument": {
+               "Version" : "2012-10-17",
+               "Statement": [ {
+                  "Effect": "Allow",
+                  "Principal": {
+                     "Service": [ "lambda.amazonaws.com" ]
+                  },
+                  "Action": [ "sts:AssumeRole" ]
+               } ]
+            },
+			"Policies": [  {
+				"PolicyName": "root",
+				"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [
+							{
+								"Effect": "Allow",
+								"Action": [
+									"dynamodb:Query",
+									"dynamodb:Scan",
+									"dynamodb:PutItem",
+									"dynamodb:GetItem",
+									"dynamodb:UpdateItem",
+									"dynamodb:DeleteItem",
+									"logs:CreateLogGroup",
+									"logs:CreateLogStream",
+									"logs:PutLogEvents"
+								],
+								"Resource": [
+									"*"
+								]
+							}
+						]
+					}
+				}
+			]
+		}
+	},
+
+    "DynamoTable" : {
+        "Type" : "AWS::DynamoDB::Table",
+        "Condition" : "CreateDynamoTable",
         "Properties" : {
-            "BucketName" : { "Fn::If" : ["BucketNameGenerated", {"Ref" : "AWS::NoValue" }, { "Ref" : "BucketName" } ] }
+            "TableName" : { "Fn::If" : ["TableNameGenerated", {"Ref" : "AWS::NoValue" }, { "Ref" : "TableName" } ] },
+			"AttributeDefinitions": [
+				{ "AttributeName" : "id", "AttributeType" : "S" }
+			],
+			"KeySchema" : [
+				{ "AttributeName" : "id", "KeyType" : "HASH"}
+			],			
+			"ProvisionedThroughput" : { "ReadCapacityUnits" : "5", "WriteCapacityUnits" : "5" }
         }
     }
   },
 
   "Outputs" : {
-    "S3ProxyBucket" : {
-        "Value" : { "Fn::If" : ["CreateS3Bucket", {"Ref":"Bucket"}, { "Ref" : "BucketName" } ] }
-    }
+    "UnderlyingDynamoTable" : {
+        "Value" : { "Fn::If" : ["CreateDynamoTable", {"Ref":"DynamoTable"}, { "Ref" : "TableName" } ] }
+    },
+	"LambdaRole" : {
+		"Value" : {"Fn::If" : ["CreateRole", {"Fn::GetAtt":["LambdaRole", "Arn"]}, {"Ref":"RoleARN"} ] }
+	}
   }
 }
