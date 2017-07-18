@@ -1,0 +1,143 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Transform" : "AWS::Serverless-2016-10-31",
+  "Description" : "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
+
+  "Parameters" : {
+    "ShouldCreateTable" : {
+      "Type" : "String",        
+      "AllowedValues" : ["true", "false"],
+      "Description" : "If true then the underlying DynamoDB table will be created with the CloudFormation stack."
+    },  
+    "TableName" : {
+        "Type" : "String",
+        "Description" : "Name of DynamoDB table to be used for underlying data store. If left blank a new table will be created.",
+        "MinLength" : "0"
+    },
+	"ShouldCreateRole" : {
+      "Type" : "String",        
+      "AllowedValues" : ["true", "false"],
+      "Description" : "If true then the role for the Lambda function will be created with the CloudFormation stack."
+    },  
+	"RoleARN" : {
+        "Type" : "String",
+        "Description" : "ARN of the IAM Role used to run the Lambda function. If left blank a new role will be created.",
+        "MinLength" : "0"
+    }, 
+	"RoleName" : {
+        "Type" : "String",
+        "Description" : "Name of the IAM Role used to run the Lambda function. If left blank a new role will be created.",
+        "MinLength" : "0"
+    }
+  },
+
+  "Conditions" : {
+    "CreateDynamoTable" : {"Fn::Equals" : [{"Ref" : "ShouldCreateTable"}, "true"]},
+    "TableNameGenerated" : {"Fn::Equals" : [{"Ref" : "TableName"}, ""]},
+	"CreateRole":{"Fn::Equals" : [{"Ref" : "ShouldCreateRole"}, "true"]},
+	"RoleGenerated" : {"Fn::Equals" : [{"Ref" : "RoleARN"}, ""]}
+  },
+
+  "Resources" : {
+
+    "Get" : {
+      "Type" : "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "AWSServerlessAPI::AWSServerlessAPI.LambdaEntryPoint::FunctionHandlerAsync",
+        "Runtime": "dotnetcore1.0",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": {"Fn::If" : ["CreateRole", {"Fn::GetAtt":["LambdaRole", "Arn"]}, {"Ref":"RoleARN"}]},
+        "Environment" : {
+          "Variables" : {
+            "AppDynamoTable" : { "Fn::If" : ["CreateDynamoTable", {"Ref":"DynamoTable"}, { "Ref" : "TableName" } ] }
+          }
+        },
+        "Events": {
+          "PutResource": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/{proxy+}",
+              "Method": "ANY"
+            }
+          }
+        }
+      }
+    },
+
+	"LambdaRole":{ 
+		"Type":"AWS::IAM::Role",
+		"Condition":"CreateRole",
+		"DeletionPolicy" : "Retain",
+		"Properties":{ 
+			"RoleName" : { "Fn::If" : ["RoleGenerated", {"Ref" : "AWS::NoValue" }, { "Ref" : "RoleName" } ] },
+			"ManagedPolicyArns":["arn:aws:iam::aws:policy/AWSLambdaFullAccess"],
+			"AssumeRolePolicyDocument": {
+               "Version" : "2012-10-17",
+               "Statement": [ {
+                  "Effect": "Allow",
+                  "Principal": {
+                     "Service": [ "lambda.amazonaws.com" ]
+                  },
+                  "Action": [ "sts:AssumeRole" ]
+               } ]
+            },
+			"Policies": [  {
+				"PolicyName": "root",
+				"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [
+							{
+								"Effect": "Allow",
+								"Action": [
+									"dynamodb:Query",
+									"dynamodb:Scan",
+									"dynamodb:PutItem",
+									"dynamodb:GetItem",
+									"dynamodb:UpdateItem",
+									"dynamodb:DeleteItem",
+									"logs:CreateLogGroup",
+									"logs:CreateLogStream",
+									"logs:PutLogEvents"
+								],
+								"Resource": [
+									"*"
+								]
+							}
+						]
+					}
+				}
+			]
+		}
+	},
+
+    "DynamoTable" : {
+        "Type" : "AWS::DynamoDB::Table",
+        "Condition" : "CreateDynamoTable",
+		"DeletionPolicy" : "Retain",
+        "Properties" : {
+            "TableName" : { "Fn::If" : ["TableNameGenerated", {"Ref" : "AWS::NoValue" }, { "Ref" : "TableName" } ] },
+			"AttributeDefinitions": [
+				{ "AttributeName" : "id", "AttributeType" : "S" }
+			],
+			"KeySchema" : [
+				{ "AttributeName" : "id", "KeyType" : "HASH"}
+			],			
+			"ProvisionedThroughput" : { "ReadCapacityUnits" : "5", "WriteCapacityUnits" : "5" }
+        }
+    }
+  },
+
+  "Outputs" : {
+    "UnderlyingDynamoTable" : {
+        "Value" : { "Fn::If" : ["CreateDynamoTable", {"Ref":"DynamoTable"}, { "Ref" : "TableName" } ] }
+    },
+	"LambdaRoleARN" : {
+		"Value" : {"Fn::If" : ["CreateRole", {"Fn::GetAtt":["LambdaRole", "Arn"]}, {"Ref":"RoleARN"} ] }
+	},
+    "LambdaRoleName" : {
+		"Value" : {"Fn::If" : ["CreateRole", {"Ref":"LambdaRole"}, {"Ref":"RoleName"} ] }
+	}
+  }
+}

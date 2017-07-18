@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputType>exe</OutputType>
@@ -17,6 +17,12 @@
   
   <ItemGroup>
 
+    <PackageReference Include="AutoMapper" Version="5.2.0" />
+
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="1.2.0" />
+
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.0.3" />
+
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.0.1" />
 
@@ -27,19 +33,22 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.0.0" />
-
-
-    <PackageReference Include="AWSSDK.S3" Version="3.3.5.13" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.0.3" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.3" />
 
     <PackageReference Include="Amazon.Lambda.Core" Version="1.0.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.1.0" />
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="0.10.1-preview1" />
-    <PackageReference Include="Amazon.Lambda.Logging.AspNetCore" Version="1.0.0" />
+    <PackageReference Include="Amazon.Lambda.Logging.AspNetCore" Version="1.1.0" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <DotNetCliToolReference Include="Amazon.Lambda.Tools" Version="1.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AWSServerlessAPI.Configuration\AWSServerlessAPI.Configuration.csproj" />
+    <ProjectReference Include="..\AWSServerlessAPI.DAL\AWSServerlessAPI.DAL.csproj" />
   </ItemGroup>
 
 </Project>

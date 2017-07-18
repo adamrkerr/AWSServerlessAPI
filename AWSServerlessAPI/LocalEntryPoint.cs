@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
+using AWSServerlessAPI.Configuration.DI;
 
 namespace AWSServerlessAPI
 {
@@ -20,6 +21,7 @@ namespace AWSServerlessAPI
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
+                .ConfigureServices(ConfigurationExtension.AddLocalConfiguration)
                 .Build();
 
             host.Run();

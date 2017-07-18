@@ -7,13 +7,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using AWSServerlessAPI.DAL.DI;
+using AWSServerlessAPI.AutoMapper;
+using AutoMapper;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace AWSServerlessAPI
 {
     public class Startup
     {
-        public const string AppS3BucketKey = "AppS3Bucket";
-
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -35,14 +37,19 @@ namespace AWSServerlessAPI
             // Pull in any SDK configuration from Configuration object
             services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
 
-            // Add S3 to the ASP.NET Core dependency injection framework.
-            services.AddAWSService<Amazon.S3.IAmazonS3>();
+            // Add DAL to the ASP.NET Core dependency injection framework.
+            services.AddDALServices();
+
+            services.AddAutoMapper(typeof(MappingProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            //Don't do this here...
             loggerFactory.AddLambdaLogger(Configuration.GetLambdaLoggerOptions());
+
+            app.UseExceptionHandler();
             app.UseMvc();
         }
     }

@@ -5,6 +5,9 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using AWSServerlessAPI.Configuration.DI;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace AWSServerlessAPI
 {
@@ -21,6 +24,8 @@ namespace AWSServerlessAPI
             builder
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
+                .ConfigureServices(ConfigurationExtension.AddAWSConfiguration)
+                //.ConfigureLogging(loggerFactory => loggerFactory.AddLambdaLogger(Startup.Configuration.GetLambdaLoggerOptions()))
                 .UseApiGateway();
         }
     }
