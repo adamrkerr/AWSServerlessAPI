@@ -8,11 +8,11 @@ namespace AWSServerlessAPI.DAL.Abstractions
 {
     public interface IItemRepository
     {
-        Task<IEnumerable<ItemRecord>> GetItems();
+        Task<IEnumerable<ItemRecord>> GetRecords();
 
-        Task<ItemRecord> GetItemByKey(string key);
+        Task<ItemRecord> GetRecordByKey(string key);
 
-        Task<ItemRecord> InsertItem(ItemRecord newRecord);
+        Task<ItemRecord> InsertRecord(ItemRecord newRecord);
 
         Task<ItemRecord> UpdateExistingRecord(ItemRecord record);
 

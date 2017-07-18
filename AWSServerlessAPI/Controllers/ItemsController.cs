@@ -1,16 +1,12 @@
+using AutoMapper;
+using AWSServerlessAPI.Configuration.Abstractions;
+using AWSServerlessAPI.DAL.Abstractions;
+using AWSServerlessAPI.DAL.Models;
+using AWSServerlessAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using AWSServerlessAPI.DAL.Abstractions;
-//using AutoMapper;
-using AWSServerlessAPI.Configuration.Abstractions;
-using AWSServerlessAPI.Models;
-using AWSServerlessAPI.DAL.Models;
-using AutoMapper;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace AWSServerlessAPI.Controllers
 {
@@ -34,7 +30,7 @@ namespace AWSServerlessAPI.Controllers
         [HttpGet]
         public async Task<IEnumerable<ItemModel>> Get()
         {            
-            var results = await _repository.GetItems();
+            var results = await _repository.GetRecords();
 
             var mapped = _mapper.Map<IEnumerable<ItemModel>>(results);
 
@@ -43,9 +39,13 @@ namespace AWSServerlessAPI.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ItemModel> Get(string id)
         {
-            return "value";
+            var result = await _repository.GetRecordByKey(id);
+
+            var mapped = _mapper.Map<ItemModel>(result);
+
+            return mapped;
         }
 
         // GET api/values/5
@@ -59,25 +59,36 @@ namespace AWSServerlessAPI.Controllers
         [HttpPost]
         public async Task<ItemModel> Post([FromBody]ItemModel newRecord)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(newRecord));
-
             var mappedRecord = Mapper.Map<ItemRecord>(newRecord);
 
-            var result = await _repository.InsertItem(mappedRecord);
+            var result = await _repository.InsertRecord(mappedRecord);
 
             return Mapper.Map<ItemModel>(result);
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public async Task<ItemModel> Put(string id, [FromBody]ItemModel newRecord)
         {
+            if(id != newRecord.Id)
+            {
+                throw new Exception("Route ID does not match payload ID");
+            }
+
+            var mappedRecord = Mapper.Map<ItemRecord>(newRecord);
+
+            var result = await _repository.UpdateExistingRecord(mappedRecord);
+
+            return Mapper.Map<ItemModel>(result);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+        public async Task Delete(string id)
+        {            
+            await _repository.DeleteRecordByKey(id);
+
+            return;
         }
     }
 }

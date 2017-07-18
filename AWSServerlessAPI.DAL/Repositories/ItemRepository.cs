@@ -15,41 +15,60 @@ namespace AWSServerlessAPI.DAL.Repositories
     {
         private readonly IAmazonDynamoDB _dynamoClient;
         private readonly IConfigurationRepository _config;
+        private readonly string _tableName;
         public ItemRepository(IAmazonDynamoDB dynamo, IConfigurationRepository config)
         {
             this._dynamoClient = dynamo;
             this._config = config;
+            this._tableName = _config.DynamoTableName;
         }
 
-        public Task DeleteRecordByKey(string key)
+        public async Task DeleteRecordByKey(string key)
         {
-            throw new NotImplementedException();
+            var item = new ItemRecord();
+
+            var response = await _dynamoClient.DeleteItemAsync(_tableName, ConstructKeyDictionary(key));
+
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                return;
+
+            throw new Exception($"Delete failed, server returned status {response.HttpStatusCode}");
         }
 
-        public Task<ItemRecord> GetItemByKey(string key)
+        public async Task<ItemRecord> GetRecordByKey(string key)
         {
-            throw new NotImplementedException();
+            var item = new ItemRecord();
+
+            var response = await _dynamoClient.GetItemAsync(_tableName, ConstructKeyDictionary(key));
+
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                return ConvertAttributesToItems(new[] { response.Item }).First();
+
+            throw new Exception($"Read failed, server returned status {response.HttpStatusCode}");
         }
 
-        public async Task<IEnumerable<ItemRecord>> GetItems()
+        public async Task<IEnumerable<ItemRecord>> GetRecords()
         {
-            var tableName = _config.DynamoTableName;
-
-            var response = await _dynamoClient.ScanAsync(tableName, GetItemRecordAttributes());
+            var response = await _dynamoClient.ScanAsync(_tableName, GetItemRecordAttributes());
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
                 return ConvertAttributesToItems(response.Items).ToList();
 
-            throw new Exception($"Insert failed, server returned status {response.HttpStatusCode}");
+            throw new Exception($"Read failed, server returned status {response.HttpStatusCode}");
         }
 
-        public async Task<ItemRecord> InsertItem(ItemRecord newRecord)
+        public async Task<ItemRecord> InsertRecord(ItemRecord newRecord)
         {
             var attributes = ConvertToAttributeCollection(newRecord);
 
-            var tableName = _config.DynamoTableName;
+            var request = new PutItemRequest
+            {
+                TableName = _tableName,
+                Item = attributes,
+                ConditionExpression = $"attribute_not_exists({nameof(newRecord.Id).ToLower()})" //only create new
+            };
 
-            var response = await _dynamoClient.PutItemAsync(tableName, attributes);
+            var response = await _dynamoClient.PutItemAsync(request);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
                 return newRecord;
@@ -57,9 +76,16 @@ namespace AWSServerlessAPI.DAL.Repositories
             throw new Exception($"Insert failed, server returned status {response.HttpStatusCode}");
         }
 
-        public Task<ItemRecord> UpdateExistingRecord(ItemRecord record)
+        public async Task<ItemRecord> UpdateExistingRecord(ItemRecord record)
         {
-            throw new NotImplementedException();
+            var attributes = ConvertToAttributeCollection(record);
+
+            var response = await _dynamoClient.UpdateItemAsync(_tableName, ConstructKeyDictionary(record.Id), ConvertToUpdateCollection(record), ReturnValue.ALL_NEW);
+
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                return ConvertAttributesToItems(new[] { response.Attributes }).First();
+
+            throw new Exception($"Update failed, server returned status {response.HttpStatusCode}");
         }
 
         private static Dictionary<string, AttributeValue> ConvertToAttributeCollection(ItemRecord record)
@@ -73,7 +99,27 @@ namespace AWSServerlessAPI.DAL.Repositories
             };
         }
 
-        private static IEnumerable<ItemRecord> ConvertAttributesToItems(List<Dictionary<string, AttributeValue>> attributeCollection)
+        private static Dictionary<string, AttributeValueUpdate> ConvertToUpdateCollection(ItemRecord record)
+        {
+            return new Dictionary<string, AttributeValueUpdate>
+            {
+                {nameof(record.Name).ToLower(), new AttributeValueUpdate{ Action = AttributeAction.PUT, Value = new AttributeValue{ S = record.Name } } },
+                {nameof(record.Description).ToLower(), new AttributeValueUpdate{ Action = AttributeAction.PUT, Value = new AttributeValue{  S = record.Description } } },
+                {nameof(record.CurrentInventory).ToLower(), new AttributeValueUpdate{ Action = AttributeAction.PUT, Value = new AttributeValue{ N = record.CurrentInventory.ToString() } } }
+            };
+        }
+
+        private static Dictionary<string, AttributeValue> ConstructKeyDictionary(string id)
+        {
+            var item = new ItemRecord();
+
+            return new Dictionary<string, AttributeValue>
+            {
+                {nameof(item.Id).ToLower(), new AttributeValue{ S = id } }
+            };
+        }
+
+        private static IEnumerable<ItemRecord> ConvertAttributesToItems(IEnumerable<Dictionary<string, AttributeValue>> attributeCollection)
         {
             foreach(var dictionary in attributeCollection)
             {
