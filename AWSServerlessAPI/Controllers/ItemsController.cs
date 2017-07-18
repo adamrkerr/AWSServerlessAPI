@@ -60,7 +60,7 @@ namespace AWSServerlessAPI.Controllers
         public async Task<ItemModel> Post([FromBody]ItemModel newRecord)
         {
             Console.WriteLine(JsonConvert.SerializeObject(newRecord));
-            
+
             var mappedRecord = Mapper.Map<ItemRecord>(newRecord);
 
             var result = await _repository.InsertItem(mappedRecord);
