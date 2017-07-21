@@ -13,6 +13,11 @@
         "Type" : "String",
         "Description" : "ARN of the IAM Role used to run the Lambda function. If left blank a new role will be created.",
         "MinLength" : "0"
+    },
+	"FrontEndUrl" : {
+        "Type" : "String",
+        "Description" : "Location of front end that will call the API. Used for CORS.",
+        "MinLength" : "0"
     }
   },
 
@@ -29,7 +34,8 @@
         "Role": {"Ref":"RoleARN"},
         "Environment" : {
           "Variables" : {
-            "AppDynamoTable" : { "Ref" : "TableName" }
+            "AppDynamoTable" : { "Ref" : "TableName" },
+			"FrontEndUrl" : {"Ref" : "FrontEndUrl" }
           }
         },
         "Events": {
@@ -51,6 +57,9 @@
     },
 	"LambdaRole" : {
 		"Value" : {"Ref":"RoleARN"}
+	},
+	"FrontEndUrl" : {
+		"Value" : {"Ref":"FrontEndUrl"}
 	}
   }
 }

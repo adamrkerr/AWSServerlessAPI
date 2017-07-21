@@ -20,8 +20,7 @@ namespace AWSServerlessAPI
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
-                .UseStartup<Startup>()
-                .ConfigureServices(ConfigurationExtension.AddLocalConfiguration)
+                .UseStartup<StartupLocal>()
                 .Build();
 
             host.Run();

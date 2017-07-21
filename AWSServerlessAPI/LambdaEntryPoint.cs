@@ -23,8 +23,7 @@ namespace AWSServerlessAPI
         {
             builder
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseStartup<Startup>()
-                .ConfigureServices(ConfigurationExtension.AddAWSConfiguration)
+                .UseStartup<StartupAWS>()
                 //.ConfigureLogging(loggerFactory => loggerFactory.AddLambdaLogger(Startup.Configuration.GetLambdaLoggerOptions()))
                 .UseApiGateway();
         }

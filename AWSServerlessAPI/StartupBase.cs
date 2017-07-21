@@ -14,9 +14,9 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace AWSServerlessAPI
 {
-    public class Startup
+    public abstract class StartupBase
     {
-        public Startup(IHostingEnvironment env)
+        protected StartupBase(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -30,7 +30,7 @@ namespace AWSServerlessAPI
         public static IConfigurationRoot Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container
-        public void ConfigureServices(IServiceCollection services)
+        public virtual void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
 
@@ -41,10 +41,12 @@ namespace AWSServerlessAPI
             services.AddDALServices();
 
             services.AddAutoMapper(typeof(MappingProfile));
+            
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             //Don't do this here...
             loggerFactory.AddLambdaLogger(Configuration.GetLambdaLoggerOptions());

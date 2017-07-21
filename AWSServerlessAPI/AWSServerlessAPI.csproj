@@ -21,6 +21,8 @@
 
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="1.2.0" />
 
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="1.0.3" />
+
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.0.3" />
 
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="1.0.0" />
