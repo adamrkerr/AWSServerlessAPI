@@ -42,7 +42,12 @@ namespace AWSServerlessAPI.DAL.Repositories
             var response = await _dynamoClient.GetItemAsync(_tableName, ConstructKeyDictionary(key));
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                if (!response.IsItemSet || response.Item.Count() == 0)
+                    return null;
+
                 return ConvertAttributesToItems(new[] { response.Item }).First();
+            }
 
             throw new Exception($"Read failed, server returned status {response.HttpStatusCode}");
         }
