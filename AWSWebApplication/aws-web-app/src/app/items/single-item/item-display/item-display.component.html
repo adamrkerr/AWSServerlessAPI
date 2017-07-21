@@ -1,0 +1,11 @@
+﻿<md-list fxLayoutGap="40px" fxLayout="column">
+  <md-list-item >
+    <div fxLayout="row" fxFlex="100%" fxFill>
+      <app-item-view [item]="currentItem" fxFlex="90%"></app-item-view>
+      <div fxFlex="10%" fxFlexAlign="end" fxFill>
+        <button md-mini-fab aria-label="edit" routerLink="/item/{{currentItem.id}}/edit"><md-icon>create</md-icon> </button>
+        <button md-mini-fab aria-label="home" routerLink="/"><md-icon>home</md-icon> </button>
+      </div>
+    </div>
+  </md-list-item>
+</md-list>

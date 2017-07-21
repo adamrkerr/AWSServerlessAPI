@@ -1,7 +1,20 @@
 ﻿<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{title}}!
-  </h1>  
+<md-toolbar>
+  <div fxLayout="row" fxLayoutAlign="space-between center" fxFlex="100%">
+
+    <div >
+
+    </div>
+    <div >
+      <h1>Welcome to {{title}}!</h1>
+    </div>
+    <div >
+      <button md-mini-fab aria-label="home" routerLink="/"><md-icon>home</md-icon></button>
+    </div>
+  </div>
+</md-toolbar>
+<div fxLayout="row" fxLayoutAlign="center start">
+  <div fxFlex="80%">
+    <router-outlet></router-outlet>
+  </div>
 </div>
-<router-outlet></router-outlet>

@@ -1,19 +1,13 @@
 ﻿import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes} from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MdToolbarModule, MdIconModule } from '@angular/material';
+import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
+import { APP_ROUTER_MODULE } from './app.routes';
 
-
-const appRoutes: Routes = [
-    { path: 'item-list', loadChildren: './all-items/all-items.module#AllItemsModule' },
-    { path: 'item', loadChildren: './single-item/single-item.module#SingleItemModule' },
-    {
-        path: '',
-        redirectTo: '/item-list',
-        pathMatch: 'full'
-    }
-];
 
 @NgModule({
   declarations: [
@@ -21,10 +15,12 @@ const appRoutes: Routes = [
   ],
   imports: [
       BrowserModule,
-      RouterModule.forRoot(
-          appRoutes,
-          { enableTracing: true } // <-- debugging purposes only
-      )
+      MdToolbarModule,
+      MdIconModule,
+      BrowserAnimationsModule,
+      FlexLayoutModule,
+      HttpModule,
+      APP_ROUTER_MODULE
   ],
   providers: [],
   bootstrap: [AppComponent]

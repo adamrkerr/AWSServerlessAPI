@@ -1,0 +1,25 @@
+﻿
+<md-list fxLayoutGap="40px" fxLayout="column">
+
+  <md-list-item>
+    <div fxLayout="row" fxFlex="100%" fxFill>
+      <app-item-editor [item]="newItem" fxFlex="90%"></app-item-editor>
+      <div fxFlex="10%" fxFlexAlign="end" fxFill>
+        <button md-mini-fab aria-label="add" (click)="addNewItem()"><md-icon>add_circle</md-icon>    </button>
+        <button md-mini-fab aria-label="clear" (click)="clearNewItem()"><md-icon>backspace</md-icon> </button>
+      </div>
+    </div>
+  </md-list-item>
+  <md-list-item *ngFor="let currentItem of itemList | async">
+    <div fxLayout="row" fxFlex="100%" fxFill>
+      <app-item-view [item]="currentItem" fxFlex="90%"></app-item-view>
+      <div fxFlex="10%" fxFlexAlign="end" fxFill>
+        <button md-mini-fab aria-label="view" routerLink="/item/{{currentItem.id}}"><md-icon>forward</md-icon></button>
+        <button md-mini-fab aria-label="edit" routerLink="/item/{{currentItem.id}}/edit"><md-icon>create</md-icon> </button>
+        <button md-mini-fab aria-label="delete" (click)="deleteItem(currentItem)"><md-icon>clear</md-icon>  </button>
+        <button md-mini-fab aria-label="buy" (click)="buyInventory(currentItem)"><md-icon>add</md-icon>    </button>
+        <button md-mini-fab aria-label="sell" (click)="sellInventory(currentItem)"><md-icon>remove</md-icon> </button>
+      </div>
+    </div>
+  </md-list-item>
+</md-list>
