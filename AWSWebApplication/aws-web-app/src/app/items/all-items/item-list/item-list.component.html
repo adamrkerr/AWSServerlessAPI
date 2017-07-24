@@ -18,7 +18,7 @@
         <button md-mini-fab aria-label="edit" routerLink="/item/{{currentItem.id}}/edit"><md-icon>create</md-icon> </button>
         <button md-mini-fab aria-label="delete" (click)="deleteItem(currentItem)"><md-icon>clear</md-icon>  </button>
         <button md-mini-fab aria-label="buy" (click)="buyInventory(currentItem)"><md-icon>add</md-icon>    </button>
-        <button md-mini-fab aria-label="sell" (click)="sellInventory(currentItem)"><md-icon>remove</md-icon> </button>
+        <button md-mini-fab aria-label="sell" (click)="sellInventory(currentItem)" [disabled]="currentItem.currentInventory < 1"><md-icon>remove</md-icon> </button>
       </div>
     </div>
   </md-list-item>
