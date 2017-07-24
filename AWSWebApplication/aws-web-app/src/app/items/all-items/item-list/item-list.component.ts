@@ -44,20 +44,21 @@ export class ItemListComponent implements OnInit {
     }
 
     buyInventory(item: Item) {
-        item.currentInventory++;
 
-        this.itemService.updateItem(item)
+        var itemUpdate = new Item({id: item.id, currentInventory: item.currentInventory + 1, description: item.description, name: item.name});
+
+        this.itemService.updateItem(itemUpdate)
             .subscribe(res => {
-                this.itemList = this.itemService.getAllItems();
+                item.currentInventory = res.currentInventory;
             });
     }
 
     sellInventory(item: Item) {
-        item.currentInventory--;
+        var itemUpdate = new Item({ id: item.id, currentInventory: item.currentInventory - 1, description: item.description, name: item.name });
 
-        this.itemService.updateItem(item)
+        this.itemService.updateItem(itemUpdate)
             .subscribe(res => {
-                this.itemList = this.itemService.getAllItems();
+                item.currentInventory = res.currentInventory;
             });
     }
 }

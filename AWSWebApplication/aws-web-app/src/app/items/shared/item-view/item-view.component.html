@@ -1,12 +1,12 @@
 ﻿
 <div fxFill fxLayout="column">
   <div fxFlex="100%">
-    <h3>Item Name</h3>
+    <h3>{{item.name}}</h3>
   </div>
   <div fxFlex="100%" fxLayout="row">
-    <div fxFlex="25">{{item.id}}</div>
-    <div fxFlex="25">{{item.name}}</div>
-    <div fxFlex="25">{{item.description}}</div>
-    <div fxFlex="25">{{item.currentInventory}}</div>
+    <div class="item-detail-view item-detail-field-id" fxFlex="25">{{item.id}}</div>
+    <div class="item-detail-view item-detail-field-name" fxFlex="25">{{item.name}}</div>
+    <div class="item-detail-view item-detail-field-desc" fxFlex="25">{{item.description}}</div>
+    <div class="item-detail-view item-detail-field-inventory" fxFlex="25">{{item.currentInventory}}</div>
   </div>
 </div>

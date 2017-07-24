@@ -1,5 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { SharedModule } from '../shared.module';
 import { ItemEditorComponent } from './item-editor.component';
 
 describe('ItemEditorComponent', () => {
@@ -8,7 +10,8 @@ describe('ItemEditorComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ItemEditorComponent ]
+      //declarations: [ ItemEditorComponent ]
+        imports: [SharedModule, BrowserAnimationsModule]
     })
     .compileComponents();
   }));
@@ -16,7 +19,7 @@ describe('ItemEditorComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ItemEditorComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
   });
 
   it('should be created', () => {

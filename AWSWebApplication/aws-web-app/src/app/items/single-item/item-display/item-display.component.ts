@@ -16,12 +16,8 @@ export class ItemDisplayComponent implements OnInit {
     currentItem: Item = new Item();
     itemId: Observable<string>;
 
-    constructor(route: ActivatedRoute, private itemService: ItemService) {
-        this.itemId = route.params.map(params => {
-            return params['id'];
-        });
-
-        this.itemId.subscribe(id => this.loadItem(id));
+    constructor(private route: ActivatedRoute, private itemService: ItemService) {
+        
     }
 
     loadItem(id: string) {
@@ -32,6 +28,11 @@ export class ItemDisplayComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.itemId = this.route.params.map(params => {
+            return params['id'];
+        });
+
+        this.itemId.subscribe(id => this.loadItem(id));
     }
 
 }
