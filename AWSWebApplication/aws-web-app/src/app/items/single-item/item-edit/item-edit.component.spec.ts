@@ -38,4 +38,8 @@ describe('ItemEditComponent', () => {
     it('should be created', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should load an item', () => {
+        expect(component).toBeTruthy();
+    });
 });

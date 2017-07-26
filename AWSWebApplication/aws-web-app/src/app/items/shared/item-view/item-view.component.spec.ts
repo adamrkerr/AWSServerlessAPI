@@ -30,7 +30,12 @@ describe('ItemViewComponent', () => {
   });
 
   it('should display item', () => {
-      component.item = new Item({ currentInventory: 10, description: "desc", id : "1234", name : "Name" });
+      component.item = new Item({
+          currentInventory: 10,
+          description: "desc",
+          id: "1234",
+          name: "Name"
+      });
 
       fixture.detectChanges();
 
