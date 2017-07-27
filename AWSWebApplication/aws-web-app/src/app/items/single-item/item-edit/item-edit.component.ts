@@ -11,18 +11,12 @@ import { ItemService } from '../../services/item-service.service';
   templateUrl: './item-edit.component.html',
   styleUrls: ['./item-edit.component.css']
 })
-export class ItemEditComponent{
+export class ItemEditComponent implements OnInit{
     currentItem: Item = new Item();
     itemId: Observable<string>;
 
-    constructor(route: ActivatedRoute, private itemService: ItemService) {
-        this.itemId = route.params.map(params =>
-        {
-            return params['id'];
-        });
-
-        this.itemId.subscribe(id => this.loadItem(id));
-    }
+    constructor(private route: ActivatedRoute, private itemService: ItemService) {
+        }
 
     loadItem(id: string) {
         this.itemService.getItem(id)
@@ -38,5 +32,14 @@ export class ItemEditComponent{
                 this.currentItem.description = res.description;
                 this.currentItem.name = res.name;
             });
+    }
+
+    ngOnInit() {
+        this.itemId = this.route.params.map(params => {
+            return params['id'];
+        });
+
+        this.itemId.subscribe(id => this.loadItem(id));
+
     }
 }
