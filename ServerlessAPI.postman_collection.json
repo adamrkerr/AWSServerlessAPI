@@ -81,7 +81,73 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\tid: \"{{testItemId}}\",\n\tname: \"Coconut\",\n\tdescription: \"Test coconut\",\n\tcurrentInventory: 1\n}"
+					"raw": "{\n\t\"id\": \"{{testItemId}}\",\n\t\"name\": \"Coconut\",\n\t\"description\": \"Test coconut\",\n\t\"currentInventory\": 1\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item with same id - 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 400\"] = responseCode.code === 400;",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{baseUrl}}/items",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"{{testItemId}}\",\n\t\"name\": \"Coconut\",\n\t\"description\": \"Test coconut\",\n\t\"currentInventory\": 1\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item without id - 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 400\"] = responseCode.code === 400;",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{baseUrl}}/items",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Coconut\",\n\t\"description\": \"Test coconut\",\n\t\"currentInventory\": 1\n}"
 				},
 				"description": ""
 			},
@@ -145,6 +211,30 @@
 			"response": []
 		},
 		{
+			"name": "Get Item with invalid id - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 404\"] = responseCode.code === 404;",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{baseUrl}}/items/135879351875",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
 			"name": "Update Item",
 			"event": [
 				{
@@ -183,7 +273,49 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\tid: \"{{testItemId}}\",\n\tname: \"Coconut\",\n\tdescription: \"Test coconut\",\n\tcurrentInventory: {{newInventoryCount}}\n}"
+					"raw": "{\n\t\"id\": \"{{testItemId}}\",\n\t\"name\": \"Coconut\",\n\t\"description\": \"Test coconut\",\n\t\"currentInventory\": {{newInventoryCount}}\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item with inconsistent id - 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 400\"] = responseCode.code === 400;",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"postman.setEnvironmentVariable(\"newInventoryCount\", 2);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{baseUrl}}/items/{{testItemId}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"12345\",\n\t\"name\": \"Coconut\",\n\t\"description\": \"Test coconut\",\n\t\"currentInventory\": {{newInventoryCount}}\n}"
 				},
 				"description": ""
 			},
@@ -242,7 +374,31 @@
 			"response": []
 		},
 		{
-			"name": "Get Item after deleted",
+			"name": "Delete Item with invalid id - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 404\"] = responseCode.code === 404;",
+							"",
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{baseUrl}}/items/15899478942",
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get Item after deleted - 404",
 			"event": [
 				{
 					"listen": "test",
