@@ -7,5 +7,7 @@ namespace AWSServerlessAPI.Configuration.Abstractions
     public interface IConfigurationRepository
     {
         string DynamoTableName { get; }
+
+        string EnvironmentName { get; }
     }
 }

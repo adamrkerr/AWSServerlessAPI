@@ -60,6 +60,12 @@ namespace AWSServerlessAPI.Controllers
             return _config.DynamoTableName;
         }
 
+        [HttpGet("env")]
+        public string GetEnvironment()
+        {
+            return _config.EnvironmentName;
+        }
+
         // POST api/values
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]ItemModel newRecord)

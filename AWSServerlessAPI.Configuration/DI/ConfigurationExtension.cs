@@ -11,9 +11,11 @@ namespace AWSServerlessAPI.Configuration.DI
 {
     public static class ConfigurationExtension
     {
-        public static void AddAWSConfiguration(this IServiceCollection services)
+        public static void AddAWSConfiguration(this IServiceCollection services, IConfigurationRoot configuration)
         {
             services.AddTransient<IConfigurationRepository, AWSConfiguration>();
+            services.AddOptions();
+            services.Configure<LocalOptions>(options => configuration.GetSection("Local").Bind(options));
         }
 
         public static void AddLocalConfiguration(this IServiceCollection services, IConfigurationRoot configuration)

@@ -15,7 +15,7 @@ namespace AWSServerlessAPI
         {
             base.ConfigureServices(services);
 
-            services.AddAWSConfiguration();
+            services.AddAWSConfiguration(Configuration);
         }
 
         public override void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
